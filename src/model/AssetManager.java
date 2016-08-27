@@ -21,12 +21,14 @@ public class AssetManager {
     final String ENEMY_TILE_PATH = "assets/enemy-tile.png";
     final String PLAYER_TILE_PATH = "assets/player-tile.png";
     final String ONHOVER_TILE_PATH = "assets/onhover-tile.png";
+    final String EXPLOSION_TILE_PATH = "assets/explosion-tile.png";
 
     public ImageIcon DEFAULT_TILE;
     public ImageIcon ACTIVE_TILE;
     public ImageIcon ENEMY_TILE;
     public ImageIcon PLAYER_TILE;
     public ImageIcon ONHOVER_TILE;
+    public ImageIcon EXPLOSION_TILE;
 
     private static AssetManager instance = null;
 
@@ -36,6 +38,7 @@ public class AssetManager {
         ENEMY_TILE = new ImageIcon(ImageIO.read(Paths.get(ENEMY_TILE_PATH).toFile()));
         PLAYER_TILE = new ImageIcon(ImageIO.read(Paths.get(PLAYER_TILE_PATH).toFile()));
         ONHOVER_TILE = new ImageIcon(ImageIO.read(Paths.get(ONHOVER_TILE_PATH).toFile()));
+        EXPLOSION_TILE = new ImageIcon(ImageIO.read(Paths.get(EXPLOSION_TILE_PATH).toFile()));
     }
 
     public static AssetManager getInstance() throws IOException {

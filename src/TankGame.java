@@ -43,6 +43,7 @@ public class TankGame extends javax.swing.JFrame {
                 board.add(jb);
             }
         }
+        m_board.getPlayerTank().attack(Tile.Direction.TOP);
         redrawBoard();
     }
 

@@ -17,6 +17,8 @@ import model.PlayerTank;
 import model.Tank;
 import model.Tile;
 import model.Tile.Direction;
+import java.util.Timer;
+import java.util.TimerTask;
 
 /**
  *
@@ -26,6 +28,7 @@ public class TileView extends JButton implements MouseListener {
 
     private Tile m_tile;
     private AssetManager m_am;
+    private Timer m_blastTimer;
 
     public TileView(Tile t) throws IOException {
         m_tile = t;
@@ -35,6 +38,7 @@ public class TileView extends JButton implements MouseListener {
 
         setDisabledIcon(m_am.DEFAULT_TILE);
         setIcon(m_am.DEFAULT_TILE);
+        m_blastTimer = new Timer();
     }
 
     public void updateTile() {
@@ -67,6 +71,20 @@ public class TileView extends JButton implements MouseListener {
             }
         } else if (m_tile.getPlayerCommands() != null) {
             setEnableTile(true);
+        }
+
+        if (m_tile.isBlasted()) {
+            Boolean wasEnabled = isEnabled();
+            setEnableTile(false);
+            setIcon(m_am.EXPLOSION_TILE);
+            setDisabledIcon(m_am.EXPLOSION_TILE);
+            
+            m_blastTimer.schedule(new TimerTask() {
+                @Override
+                public void run() {
+                    setEnableTile(wasEnabled);
+                }
+            }, 500);
         }
     }
 
@@ -104,7 +122,7 @@ public class TileView extends JButton implements MouseListener {
         if (!isEnabled()) {
             return;
         }
-      setIcon(m_am.ACTIVE_TILE);
+        setIcon(m_am.ACTIVE_TILE);
     }
 
     public void setEnableTile(Boolean b) {
