@@ -12,7 +12,7 @@ import model.Tile.Direction;
  *
  * @author bruceoutdoors
  */
-class Board {
+public class Board {
 
     private final Tile[][] m_boardArr;
     private final int m_row;
