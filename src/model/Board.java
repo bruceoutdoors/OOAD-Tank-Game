@@ -5,7 +5,6 @@
  */
 package model;
 
-import java.awt.Point;
 import model.Tile.Direction;
 
 /**
@@ -17,8 +16,9 @@ public class Board {
     private final Tile[][] m_boardArr;
     private final int m_row;
     private final int m_col;
-    private Tank m_playerTank;
-    private Tank m_enemyTank;
+    private PlayerTank m_playerTank;
+    private EnemyTank m_enemyTank;
+    private Boolean m_isSimulationMode = true;
 
     public Board(int row, int col) {
         m_boardArr = new Tile[row][col];
@@ -31,8 +31,10 @@ public class Board {
             }
         }
 
-        m_playerTank = new Tank(m_boardArr[m_row - 1][m_col - 1], this);
-        m_enemyTank = new Tank(m_boardArr[0][0], this);
+        m_playerTank = new PlayerTank(m_boardArr[m_row - 1][m_col - 1], this);
+        m_enemyTank = new EnemyTank(m_boardArr[0][0], this);
+        m_playerTank.setDirection(Direction.LEFT);
+        m_enemyTank.setDirection(Direction.RIGHT);
     }
     
     public void resetBoard() {
@@ -87,7 +89,7 @@ public class Board {
         return m_playerTank;
     }
     
-    public Tank getEnemyTank() {
+    public EnemyTank getEnemyTank() {
         return m_enemyTank;
     }
     
@@ -105,5 +107,13 @@ public class Board {
                 m_boardArr[i][j].setPlayerCommands(null);
             }
         }
+    }
+    
+    public void setSimulationMode(Boolean b) {
+        m_isSimulationMode = b;
+    }
+    
+    public Boolean isSimulationMode() {
+        return m_isSimulationMode;
     }
 }

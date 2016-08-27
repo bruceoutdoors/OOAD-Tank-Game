@@ -14,23 +14,21 @@ import model.Tile.Direction;
  */
 public class Tank {
 
-    private Board m_board;
-    private Tile m_tile;
-    private Direction m_direction = Direction.TOP;
-    private Boolean m_isAlive = true;
+    protected Board m_board;
+    protected Tile m_tile;
+    protected Direction m_direction = Direction.TOP;
+    protected Boolean m_isAlive = true;
 
     public Tank(Tile tile, Board board) {
         m_board = board;
         m_tile = tile;
         m_tile.setTank(this);
-        
-        updatePlayerMoves();
     }
 
     public Boolean move(Direction d) {
         Tile target = m_tile.getNeighbor(d);
         if (target != null) {
-            if (target.getTank() != null) {
+            if (target.getTank() != null && !m_board.isSimulationMode()) {
                 return false;
             }
 
@@ -38,7 +36,6 @@ public class Tank {
             m_tile.setTank(null);
             target.setTank(this);
             m_tile = target;
-            updatePlayerMoves();
             return true;
         }
 
@@ -47,15 +44,17 @@ public class Tank {
 
     public Boolean attack(Direction d) {
         Tile target = m_tile.getNeighbor(d);
-        if (target != null) { 
+        if (target != null) {
             m_direction = d;
             target.setBlasted(true);
-            Tank t = target.getTank();
-            if (t != null) {
-                t.setAlive(false);
+
+            if (!m_board.isSimulationMode()) {
+                Tank t = target.getTank();
+                if (t != null) {
+                    t.setAlive(false);
+                }
             }
-            
-            updatePlayerMoves();
+
             return true;
         }
 
@@ -86,21 +85,4 @@ public class Tank {
     public void setAlive(Boolean b) {
         m_isAlive = b;
     }
-
-    public void updatePlayerMoves() {
-        m_board.clearPlayerMoves();
-        
-        for (Direction d : Direction.values()) {
-            if (d == Direction.NONE) continue;
-            
-            Tile topTile = m_tile.getNeighbor(d);
-            if (topTile != null) {
-                ArrayList<ITankCommand> commands = new ArrayList<>();
-                commands.add(new AttackCommand(this, d));
-                commands.add(new MoveCommand(this, d));
-                topTile.setPlayerCommands(commands);
-            }
-        }
-    }
-
 }

@@ -14,17 +14,21 @@ import java.awt.event.*;
 import javax.swing.*;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.io.IOException;
+import java.nio.file.Paths;
+import javax.imageio.ImageIO;
 
 public class ButtonTest extends JFrame implements MouseListener{
-    Icon whiteBtn = new ImageIcon("WhiteTile.png");
-    Icon blueBtn = new ImageIcon("BlueTile.png");
+    Icon whiteBtn;
+    Icon blueBtn;
     JButton gridButt = new JButton();
     private boolean mouseEntered = false;
     private boolean mousePressed = false;
         
-    public ButtonTest(){
-        
+    public ButtonTest() throws IOException{
         super("ButtonFrame");
+        whiteBtn = new ImageIcon(ImageIO.read(Paths.get("WhiteTile.png").toFile()));
+        blueBtn = new ImageIcon(ImageIO.read(Paths.get("BlueTile.png").toFile()));
         JPanel jp=new JPanel(new FlowLayout());
         //jp.setLayoutManager(new FlowLayout());
         add(jp);
@@ -38,8 +42,9 @@ public class ButtonTest extends JFrame implements MouseListener{
         //enableInputMethods(true);
         gridButt.setPreferredSize(new Dimension (50,50));
         gridButt.addMouseListener(this);
-        //gridButt.setIcon(whiteBtn);
+        gridButt.setIcon(whiteBtn);
         gridButt.setBackground(Color.WHITE);
+        gridButt.setEnabled(false);
         //gridButt.setContentAreaFilled(false);
         jp.add(gridButt);
         //end of class 
@@ -49,12 +54,14 @@ public class ButtonTest extends JFrame implements MouseListener{
     @Override
     public void mouseEntered(MouseEvent e){
         mouseEntered = true;
-        gridButt.setBackground(Color.BLUE);
+//        gridButt.setBackground(Color.BLUE);
+        gridButt.setIcon(blueBtn);
     }
     @Override
     public void mouseExited(MouseEvent e){
         mouseEntered = false;
-        gridButt.setBackground(Color.WHITE);
+//        gridButt.setBackground(Color.WHITE);
+        gridButt.setIcon(whiteBtn);
     }
     @Override
     public void mousePressed(MouseEvent e) {
@@ -63,7 +70,7 @@ public class ButtonTest extends JFrame implements MouseListener{
     public void mouseReleased(MouseEvent e) {
     }
 
-    public static void main(String[] a) {
+    public static void main(String[] a) throws IOException {
         JFrame nframe = new ButtonTest();
         nframe.setVisible(true);
     }
