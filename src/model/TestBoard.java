@@ -13,6 +13,7 @@ public class TestBoard {
 
     public static void main(String[] args) {
         Board b = new Board(4, 4);
+       // for (int i =0; i < b.getRowCount())
         Tile t = b.getBoardArr()[3][3];
         Tile o = t.getNeighbor(Tile.Direction.RIGHT);
         Tank player = b.getPlayerTank();

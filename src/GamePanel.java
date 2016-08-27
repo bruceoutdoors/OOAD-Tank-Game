@@ -7,9 +7,34 @@ import javax.swing.ImageIcon;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
+import model.Board;
+import model.Tile;
+
+
 
 public class GamePanel extends JPanel implements KeyListener{
-	
+    
+        int x=0;
+        int y=0;
+        int w=70;
+        int h=70;
+        
+        int cols = 10;
+        int rows = 10;
+        String [][] boardarray = new String [cols][rows];
+          
+        
+        
+        int [][] x_axis = new int [cols][rows];
+        int [][] y_axis = new int [cols][rows];
+        Board bb = new Board(cols, rows);
+        
+        Tile tmyrobot = bb.getPlayerTank().getTile();
+        Tile tairobot = bb.getEnemyTank().getTile();
+        
+
+        
+        
 	int a, b, heigth, width, s_x, s_y, s2_x, s2_y;
 	MyRobot myRobot = new MyRobot();
 	PcRobot pcRobot = new PcRobot();
@@ -33,13 +58,27 @@ public class GamePanel extends JPanel implements KeyListener{
 		logoLabel.setIcon(icon);
 		this.add(logoLabel);
 		
-		myRobot.setLocation(650, 650);
-		pcRobot.setLocation(20, 20);
+                
+                
+               
+  
+                  
+
 		this.add(myRobot);
 		this.add(pcRobot);
+                
+                  for (int i = 0; i < cols; i++) 
+                  {
+                        for (int j = 0; j < rows; j++) 
+                       {
+                            x_axis[i][j] = -1;
+                            y_axis[i][j] = -1;
+                         }
+                   }
 		
 		
 	}
+        
 	ImageIcon createImageIcon(String path,
             String description) {
         java.net.URL imgURL = getClass().getResource(path);
@@ -51,28 +90,57 @@ public class GamePanel extends JPanel implements KeyListener{
         }
     }
 	
-	@Override
+    @Override
     protected void paintComponent(Graphics g){
+        
+        
         super.paintComponent(g);
         g.setColor(Color.BLACK);
-        g.drawLine(0, 0, 700, 0);
-        g.drawLine(70, 0, 70, 700);g.drawLine(0, 70, 700, 70);
-        g.drawLine(140, 0, 140, 700);g.drawLine(0, 140, 700, 140);
-        g.drawLine(210, 0, 210, 700);g.drawLine(0, 210, 700, 210);
-        g.drawLine(280, 0, 280, 700);g.drawLine(0, 280, 700, 280);
-        g.drawLine(350, 0, 350, 700);g.drawLine(0, 350, 700, 350);
-        g.drawLine(420, 0, 420, 700);g.drawLine(0, 420, 700, 420);
-        g.drawLine(490, 0, 490, 700);g.drawLine(0, 490, 700, 490);
-        g.drawLine(560, 0, 560, 700);g.drawLine(0, 560, 700, 560);
-        g.drawLine(630, 0, 630, 700);g.drawLine(0, 630, 700, 630);
-        g.drawLine(700, 0, 700, 700);g.drawLine(0, 700, 700, 700);
+        
+        for (y=0; y<700; y=y+70) 
+        {
+            for (x=0; x<700; x=x+70) 
+            {
+                intialisexy(x,y);
+                g.drawRect (x, y, w, h);
+            }
+        }
+      
+        for (int i = 0; i < cols; i++) 
+        {
+            for (int j = 0; j < rows; j++) 
+            {
+                boardarray[i][j] = "empty";
+            }
+        }
+
         
         g.setColor(Color.RED);
         g.drawRect(s_x, s_y, 100, 1);
         g.drawRect(s2_x, s2_y, 1, 100);
-        
+        myRobot.setLocation(x_axis[tmyrobot.getCol()][tmyrobot.getRow()]+20, y_axis[tmyrobot.getCol()][tmyrobot.getRow()]+20);
+        pcRobot.setLocation(x_axis[tairobot.getCol()][tairobot.getRow()]+20, y_axis[tairobot.getCol()][tairobot.getRow()]+20);
         
     }
+    
+     public void intialisexy(int x, int y){
+        boolean setxy=false; 
+         for (int i = 0; i < cols; i++) 
+        {
+            for (int j = 0; j < rows; j++) 
+            {
+                if (x_axis[i][j]<0 && y_axis[i][j]<0)
+                {
+                x_axis[i][j] = x;
+                y_axis[i][j] = y;
+                setxy=true;
+                break;
+                }
+            }
+            if (setxy)
+            break;
+        } 
+     }
 	@Override
 	public void keyTyped(KeyEvent e) {
 	}
