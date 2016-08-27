@@ -34,6 +34,20 @@ class Board {
         m_playerTank = new Tank(m_boardArr[m_row - 1][m_col - 1], this);
         m_enemyTank = new Tank(m_boardArr[0][0], this);
     }
+    
+    public void resetBoard() {
+        for (int i = 0; i < m_row; i++) {
+            for (int j = 0; j < m_col; j++) {
+                m_boardArr[i][j].setBlasted(false);
+                m_boardArr[i][j].setTank(null);
+            }
+        }
+        
+        m_playerTank.setAlive(true);
+        m_enemyTank.setAlive(true);
+        m_playerTank.setTile(m_boardArr[m_row - 1][m_col - 1]);
+        m_enemyTank.setTile(m_boardArr[0][0]);
+    }
 
     public Tile getNeighborTile(Tile t, Direction d) {
         int r = t.getRow();
@@ -42,13 +56,13 @@ class Board {
         try {
             switch (d) {
                 case TOP:
-                    return m_boardArr[r][c - 1];
-                case BOTTOM:
-                    return m_boardArr[r][c + 1];
-                case LEFT:
                     return m_boardArr[r - 1][c];
-                case RIGHT:
+                case BOTTOM:
                     return m_boardArr[r + 1][c];
+                case LEFT:
+                    return m_boardArr[r][c - 1];
+                case RIGHT:
+                    return m_boardArr[r][c + 1];
             }
         } catch (ArrayIndexOutOfBoundsException ex) {
             return null;
@@ -73,10 +87,22 @@ class Board {
         return m_playerTank;
     }
     
-    private void resetBlasts() {
+    public Tank getEnemyTank() {
+        return m_enemyTank;
+    }
+    
+    public void resetBlasts() {
         for (int i = 0; i < m_row; i++) {
             for (int j = 0; j < m_col; j++) {
                 m_boardArr[i][j].setBlasted(false);
+            }
+        }
+    }
+    
+    public void clearPlayerMoves() {
+        for (int i = 0; i < m_row; i++) {
+            for (int j = 0; j < m_col; j++) {
+                m_boardArr[i][j].setPlayerCommands(null);
             }
         }
     }

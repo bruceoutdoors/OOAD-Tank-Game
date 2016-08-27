@@ -52,4 +52,8 @@ public class TankCommandStack {
     public void clear() {
         m_historyStack.clear();
     }
+    
+    public int maxSize() {
+        return m_size;
+    }
 }

@@ -6,6 +6,7 @@
 package model;
 
 import java.awt.Point;
+import java.util.ArrayList;
 
 /**
  *
@@ -23,7 +24,8 @@ public class Tile {
         LEFT,
         RIGHT
     }
-    private Point m_position;
+
+    private ArrayList<ITankCommand> m_playerCommands = null;
     private Tank m_tank = null;
     private Board m_board;
     private Boolean m_blasted = false;
@@ -60,6 +62,14 @@ public class Tile {
 
     public Boolean isBlasted() {
         return m_blasted;
+    }
+    
+    public void setPlayerCommands(ArrayList<ITankCommand> commands) {
+        m_playerCommands = commands;
+    }
+    
+    public ArrayList<ITankCommand> getPlayerCommands() {
+        return m_playerCommands;
     }
 
     static public Direction getOppositeDirection(Direction d) {
