@@ -16,9 +16,11 @@ public class TestBoard {
         Tile t = b.getBoardArr()[3][3];
         Tile o = t.getNeighbor(Tile.Direction.RIGHT);
         Tank player = b.getPlayerTank();
-        Boolean success = player.move(Tile.Direction.LEFT);
+//        Boolean success = player.move(Tile.Direction.LEFT);
+        MoveCommand mc = new MoveCommand(player, Tile.Direction.LEFT);
+        mc.execute();
         player.attack(Tile.Direction.TOP);
-        
+        mc.undo();
         System.out.println("hello");
     }
 
