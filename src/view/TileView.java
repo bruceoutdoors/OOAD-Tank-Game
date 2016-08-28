@@ -109,15 +109,17 @@ public class TileView extends JButton implements MouseListener {
             return;
         }
         
-        if (m_tile.getPlayerCommands() != null) {
-            m_popup.showPopup(this, e);
-        }
+        
     }
 
     @Override
     public void mousePressed(MouseEvent e) {
         if (!isEnabled()) {
             return;
+        }
+        
+        if (m_tile.getPlayerCommands() != null) {
+            m_popup.showPopup(this, e);
         }
     }
 
