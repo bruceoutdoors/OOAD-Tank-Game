@@ -85,7 +85,7 @@ public class Board {
         return m_boardArr;
     }
     
-    public Tank getPlayerTank() {
+    public PlayerTank getPlayerTank() {
         return m_playerTank;
     }
     

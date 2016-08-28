@@ -1,12 +1,22 @@
 
 import java.awt.FlowLayout;
 import java.awt.GridLayout;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.io.IOException;
+import java.util.Observable;
+import java.util.Observer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
+import javax.swing.JMenuItem;
+import javax.swing.SwingUtilities;
 import model.Board;
+import model.ITankCommand;
+import model.PlayerTank;
 import model.Tile;
+import view.TankCommandPopupMenu;
 import view.TileView;
 
 /*
@@ -18,13 +28,15 @@ import view.TileView;
  *
  * @author bruceoutdoors
  */
-public class TankGame extends javax.swing.JFrame {
+public class TankGame extends javax.swing.JFrame implements Observer {
 
     private int ROW = 3;
     private int COL = 3;
     private Board m_board;
     private Tile[][] m_tilesArr;
     private TileView[][] m_boardButtons;
+    private TankCommandPopupMenu m_popup;
+
     /**
      * Creates new form TankGame
      */
@@ -38,12 +50,12 @@ public class TankGame extends javax.swing.JFrame {
 
         for (Integer r = 0; r < ROW; r++) {
             for (Integer c = 0; c < COL; c++) {
-                TileView jb = new TileView(m_tilesArr[r][c]);
+                TileView jb = new TileView(this, m_tilesArr[r][c]);
                 m_boardButtons[r][c] = jb;
                 board.add(jb);
             }
         }
-        m_board.getPlayerTank().attack(Tile.Direction.TOP);
+//        m_board.getPlayerTank().attack(Tile.Direction.TOP);
         redrawBoard();
     }
 
@@ -130,4 +142,16 @@ public class TankGame extends javax.swing.JFrame {
     private javax.swing.JPanel board;
     private javax.swing.JButton jButton1;
     // End of variables declaration//GEN-END:variables
+
+    @Override
+    public void update(Observable o, Object arg) {
+        if (arg instanceof ITankCommand) {
+            onITankCommand((ITankCommand) arg);
+        }
+    }
+    
+    private void onITankCommand(ITankCommand itc) {
+        itc.execute();
+        redrawBoard();
+    }
 }

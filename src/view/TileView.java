@@ -9,6 +9,7 @@ import java.awt.Image;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.io.IOException;
+import java.util.Observer;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import model.AssetManager;
@@ -29,8 +30,9 @@ public class TileView extends JButton implements MouseListener {
     private Tile m_tile;
     private AssetManager m_am;
     private Timer m_blastTimer;
+    private TankCommandPopupMenu m_popup;
 
-    public TileView(Tile t) throws IOException {
+    public TileView(Observer ob, Tile t) throws IOException {
         m_tile = t;
         addMouseListener(this);
         setEnabled(false);
@@ -39,9 +41,14 @@ public class TileView extends JButton implements MouseListener {
         setDisabledIcon(m_am.DEFAULT_TILE);
         setIcon(m_am.DEFAULT_TILE);
         m_blastTimer = new Timer();
+//        TankCommandPopupMenu ttt = new TankCommandPopupMenu();
+//        ttt.set
+//        setComponentPopupMenu(ttt);
+        m_popup = new TankCommandPopupMenu(ob, m_tile);
     }
 
     public void updateTile() {
+        setEnableTile(false);
         Tank tank = m_tile.getTank();
         if (tank != null) {
             setEnableTile(false);
@@ -71,20 +78,28 @@ public class TileView extends JButton implements MouseListener {
             }
         } else if (m_tile.getPlayerCommands() != null) {
             setEnableTile(true);
+            
         }
 
         if (m_tile.isBlasted()) {
-            Boolean wasEnabled = isEnabled();
-            setEnableTile(false);
-            setIcon(m_am.EXPLOSION_TILE);
-            setDisabledIcon(m_am.EXPLOSION_TILE);
-            
-            m_blastTimer.schedule(new TimerTask() {
-                @Override
-                public void run() {
-                    setEnableTile(wasEnabled);
-                }
-            }, 500);
+            if (tank != null) {
+                setIcon(m_am.EXPLOSION_TILE);
+                setDisabledIcon(m_am.EXPLOSION_TILE);
+            } else {
+                m_tile.setBlasted(false);
+                Boolean wasEnabled = isEnabled();
+                setEnableTile(false);
+                setIcon(m_am.EXPLOSION_TILE);
+                setDisabledIcon(m_am.EXPLOSION_TILE);
+
+                m_blastTimer.schedule(new TimerTask() {
+                    @Override
+                    public void run() {
+                        setEnableTile(wasEnabled);
+                    }
+                }, 500);
+            }
+
         }
     }
 
@@ -92,6 +107,10 @@ public class TileView extends JButton implements MouseListener {
     public void mouseClicked(MouseEvent e) {
         if (!isEnabled()) {
             return;
+        }
+        
+        if (m_tile.getPlayerCommands() != null) {
+            m_popup.showPopup(this, e);
         }
     }
 
@@ -132,6 +151,7 @@ public class TileView extends JButton implements MouseListener {
         } else {
             setEnabled(false);
             setIcon(m_am.DEFAULT_TILE);
+            setDisabledIcon(m_am.DEFAULT_TILE);
         }
     }
 
