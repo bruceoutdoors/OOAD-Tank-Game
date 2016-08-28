@@ -5,6 +5,7 @@
  */
 package view;
 
+import java.awt.Color;
 import java.awt.Image;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
@@ -20,6 +21,8 @@ import model.Tile;
 import model.Tile.Direction;
 import java.util.Timer;
 import java.util.TimerTask;
+import javax.swing.border.Border;
+import javax.swing.border.LineBorder;
 
 /**
  *
@@ -37,7 +40,7 @@ public class TileView extends JButton implements MouseListener {
         addMouseListener(this);
         setEnabled(false);
         m_am = AssetManager.getInstance();
-
+        setBorder(new LineBorder(Color.GRAY));
         setDisabledIcon(m_am.DEFAULT_TILE);
         setIcon(m_am.DEFAULT_TILE);
         m_blastTimer = new Timer();

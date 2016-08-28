@@ -1,4 +1,5 @@
 
+import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.GridLayout;
 import java.awt.event.MouseAdapter;
@@ -12,6 +13,7 @@ import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JMenuItem;
 import javax.swing.SwingUtilities;
+import javax.swing.UIManager;
 import model.Board;
 import model.ITankCommand;
 import model.PlayerTank;
@@ -47,7 +49,7 @@ public class TankGame extends javax.swing.JFrame implements Observer {
         m_tilesArr = m_board.getBoardArr();
         m_boardButtons = new TileView[ROW][COL];
         board.setLayout(new GridLayout(ROW, COL));
-
+        setResizable(false);
         for (Integer r = 0; r < ROW; r++) {
             for (Integer c = 0; c < COL; c++) {
                 TileView jb = new TileView(this, m_tilesArr[r][c]);
@@ -78,54 +80,154 @@ public class TankGame extends javax.swing.JFrame implements Observer {
     private void initComponents() {
 
         board = new javax.swing.JPanel();
-        jButton1 = new javax.swing.JButton();
+        jPanel1 = new javax.swing.JPanel();
+        jScrollPane1 = new javax.swing.JScrollPane();
+        playerCommandDisplay = new javax.swing.JList<>();
+        jLabel1 = new javax.swing.JLabel();
+        jPanel2 = new javax.swing.JPanel();
+        jScrollPane3 = new javax.swing.JScrollPane();
+        enemyCommandDisplay = new javax.swing.JList<>();
+        jLabel3 = new javax.swing.JLabel();
+        undoBtn = new javax.swing.JButton();
+        executeBtn = new javax.swing.JButton();
+        jLabel2 = new javax.swing.JLabel();
+        movesRemainLbl = new javax.swing.JLabel();
+        jMenuBar2 = new javax.swing.JMenuBar();
+        jMenu3 = new javax.swing.JMenu();
+        newGameMenuItem = new javax.swing.JMenuItem();
+        jMenu4 = new javax.swing.JMenu();
+        howPlayMenuItem = new javax.swing.JMenu();
+        aboutMenuItem = new javax.swing.JMenuItem();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setTitle("OOAD Robot Wars");
 
+        board.setBackground(new java.awt.Color(153, 255, 255));
         board.setLayout(null);
 
-        jButton1.setText("redraw");
-        jButton1.addActionListener(new java.awt.event.ActionListener() {
+        jPanel1.setLayout(new java.awt.BorderLayout(0, 5));
+
+        playerCommandDisplay.setModel(new javax.swing.AbstractListModel<String>() {
+            String[] strings = { "1 - Move LEFT", "2 - Attack RIGHT", "3 - Move TOP", "4 - Move TOP", "..." };
+            public int getSize() { return strings.length; }
+            public String getElementAt(int i) { return strings[i]; }
+        });
+        jScrollPane1.setViewportView(playerCommandDisplay);
+
+        jPanel1.add(jScrollPane1, java.awt.BorderLayout.CENTER);
+
+        jLabel1.setText("Player Moves");
+        jPanel1.add(jLabel1, java.awt.BorderLayout.PAGE_START);
+
+        jPanel2.setLayout(new java.awt.BorderLayout(0, 5));
+
+        enemyCommandDisplay.setModel(new javax.swing.AbstractListModel<String>() {
+            String[] strings = { "Command #1", "Command #2", "Command #3", "Command #4", "Command #5" };
+            public int getSize() { return strings.length; }
+            public String getElementAt(int i) { return strings[i]; }
+        });
+        jScrollPane3.setViewportView(enemyCommandDisplay);
+
+        jPanel2.add(jScrollPane3, java.awt.BorderLayout.CENTER);
+
+        jLabel3.setText("Enemy Moves");
+        jPanel2.add(jLabel3, java.awt.BorderLayout.PAGE_START);
+
+        undoBtn.setText("Undo");
+
+        executeBtn.setText("Execute!");
+        executeBtn.setEnabled(false);
+
+        jLabel2.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
+        jLabel2.setText("Moves Remaining:");
+
+        movesRemainLbl.setFont(new java.awt.Font("Tahoma", 1, 14)); // NOI18N
+        movesRemainLbl.setForeground(new java.awt.Color(0, 153, 0));
+        movesRemainLbl.setText("15");
+
+        jMenu3.setText("File");
+
+        newGameMenuItem.setText("New Game...");
+        newGameMenuItem.setActionCommand("");
+        newGameMenuItem.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton1ActionPerformed(evt);
+                newGameMenuItemActionPerformed(evt);
             }
         });
+        jMenu3.add(newGameMenuItem);
+
+        jMenuBar2.add(jMenu3);
+
+        jMenu4.setText("Help");
+
+        howPlayMenuItem.setText("What to do ar?");
+        jMenu4.add(howPlayMenuItem);
+
+        aboutMenuItem.setText("About");
+        jMenu4.add(aboutMenuItem);
+
+        jMenuBar2.add(jMenu4);
+
+        setJMenuBar(jMenuBar2);
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addGap(67, 67, 67)
-                .addComponent(board, javax.swing.GroupLayout.PREFERRED_SIZE, 150, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(18, 18, 18)
-                .addComponent(jButton1)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, 88, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(board, javax.swing.GroupLayout.PREFERRED_SIZE, 150, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, 113, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(jLabel2)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(movesRemainLbl)
+                        .addGap(18, 18, 18)
+                        .addComponent(executeBtn)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(undoBtn)))
+                .addGap(8, 8, 8))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel2)
+                    .addComponent(movesRemainLbl)
+                    .addComponent(executeBtn)
+                    .addComponent(undoBtn))
+                .addGap(19, 19, 19)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(layout.createSequentialGroup()
-                        .addGap(23, 23, 23)
-                        .addComponent(board, javax.swing.GroupLayout.PREFERRED_SIZE, 150, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addGroup(layout.createSequentialGroup()
-                        .addGap(65, 65, 65)
-                        .addComponent(jButton1)))
-                .addContainerGap(45, Short.MAX_VALUE))
+                    .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(board, javax.swing.GroupLayout.PREFERRED_SIZE, 150, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(10, 10, 10))
         );
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-    private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
-        redrawBoard();
-    }//GEN-LAST:event_jButton1ActionPerformed
+    private void newGameMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_newGameMenuItemActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_newGameMenuItemActionPerformed
 
     /**
      * @param args the command line arguments
      */
     public static void main(String args[]) {
+        try {
+            // Set cross-platform Java L&F (also called "Metal")
+            UIManager.setLookAndFeel(
+                    UIManager.getSystemLookAndFeelClassName());
+        } catch (Exception e) {
+            // handle exception
+        }
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
@@ -139,8 +241,25 @@ public class TankGame extends javax.swing.JFrame implements Observer {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JMenuItem aboutMenuItem;
     private javax.swing.JPanel board;
-    private javax.swing.JButton jButton1;
+    private javax.swing.JList<String> enemyCommandDisplay;
+    private javax.swing.JButton executeBtn;
+    private javax.swing.JMenu howPlayMenuItem;
+    private javax.swing.JLabel jLabel1;
+    private javax.swing.JLabel jLabel2;
+    private javax.swing.JLabel jLabel3;
+    private javax.swing.JMenu jMenu3;
+    private javax.swing.JMenu jMenu4;
+    private javax.swing.JMenuBar jMenuBar2;
+    private javax.swing.JPanel jPanel1;
+    private javax.swing.JPanel jPanel2;
+    private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JScrollPane jScrollPane3;
+    private javax.swing.JLabel movesRemainLbl;
+    private javax.swing.JMenuItem newGameMenuItem;
+    private javax.swing.JList<String> playerCommandDisplay;
+    private javax.swing.JButton undoBtn;
     // End of variables declaration//GEN-END:variables
 
     @Override
@@ -149,7 +268,7 @@ public class TankGame extends javax.swing.JFrame implements Observer {
             onITankCommand((ITankCommand) arg);
         }
     }
-    
+
     private void onITankCommand(ITankCommand itc) {
         itc.execute();
         redrawBoard();
