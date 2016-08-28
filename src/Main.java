@@ -10,20 +10,16 @@ public class Main {
      */
     public static void main(String args[]) {
         try {
-            // Set cross-platform Java L&F (also called "Metal")
-            UIManager.setLookAndFeel(
-                    UIManager.getSystemLookAndFeelClassName());
+            UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
         } catch (Exception e) {
-            // handle exception
+            System.err.println("Can't load native look. Sad face!");
         }
         /* Create and display the form */
-        java.awt.EventQueue.invokeLater(new Runnable() {
-            public void run() {
-                try {
-                    new TankGame().setVisible(true);
-                } catch (IOException ex) {
-                    Logger.getLogger(TankGame.class.getName()).log(Level.SEVERE, null, ex);
-                }
+        java.awt.EventQueue.invokeLater(() -> {
+            try {
+                new TankGame().setVisible(true);
+            } catch (IOException ex) {
+                Logger.getLogger(TankGame.class.getName()).log(Level.SEVERE, null, ex);
             }
         });
     }
