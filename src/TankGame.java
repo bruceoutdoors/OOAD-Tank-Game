@@ -1,4 +1,5 @@
 
+import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.GridLayout;
@@ -9,15 +10,19 @@ import java.util.Observable;
 import java.util.Observer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.swing.DefaultListModel;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JMenuItem;
+import javax.swing.ListModel;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 import model.Board;
 import model.ITankCommand;
 import model.PlayerTank;
+import model.TankCommandStack;
 import model.Tile;
+import view.CommandStackView;
 import view.TankCommandPopupMenu;
 import view.TileView;
 
@@ -34,10 +39,15 @@ public class TankGame extends javax.swing.JFrame implements Observer {
 
     private int ROW = 3;
     private int COL = 3;
+    private int MAX_COMMANDS = 5;
     private Board m_board;
     private Tile[][] m_tilesArr;
     private TileView[][] m_boardButtons;
     private TankCommandPopupMenu m_popup;
+    private TankCommandStack m_playerCommandStack;
+    private TankCommandStack m_enemyCommandStack;
+    private CommandStackView m_playerCommandView;
+    private CommandStackView m_enemyCommandView;
 
     /**
      * Creates new form TankGame
@@ -58,10 +68,23 @@ public class TankGame extends javax.swing.JFrame implements Observer {
             }
         }
 //        m_board.getPlayerTank().attack(Tile.Direction.TOP);
+
+        m_playerCommandStack = new TankCommandStack(MAX_COMMANDS);
+        m_enemyCommandStack = new TankCommandStack(MAX_COMMANDS);
+        m_enemyCommandView = new CommandStackView(enemyCommandDisplay, m_enemyCommandStack);
+        m_playerCommandView = new CommandStackView(playerCommandDisplay, m_playerCommandStack);
+
         redrawBoard();
     }
 
     public void redrawBoard() {
+        Integer movesRemain = MAX_COMMANDS - m_playerCommandStack.currentSize();
+        movesRemainLbl.setText(movesRemain.toString());
+        if (movesRemain == 0) {
+            movesRemainLbl.setForeground(Color.RED);
+        } else {
+            movesRemainLbl.setForeground(new Color(0, 153, 0));
+        }
         for (Integer r = 0; r < ROW; r++) {
             for (Integer c = 0; c < COL; c++) {
                 int w = m_boardButtons[r][c].getWidth();
@@ -112,6 +135,7 @@ public class TankGame extends javax.swing.JFrame implements Observer {
             public int getSize() { return strings.length; }
             public String getElementAt(int i) { return strings[i]; }
         });
+        playerCommandDisplay.setEnabled(false);
         jScrollPane1.setViewportView(playerCommandDisplay);
 
         jPanel1.add(jScrollPane1, java.awt.BorderLayout.CENTER);
@@ -126,6 +150,7 @@ public class TankGame extends javax.swing.JFrame implements Observer {
             public int getSize() { return strings.length; }
             public String getElementAt(int i) { return strings[i]; }
         });
+        enemyCommandDisplay.setEnabled(false);
         jScrollPane3.setViewportView(enemyCommandDisplay);
 
         jPanel2.add(jScrollPane3, java.awt.BorderLayout.CENTER);
@@ -270,7 +295,18 @@ public class TankGame extends javax.swing.JFrame implements Observer {
     }
 
     private void onITankCommand(ITankCommand itc) {
-        itc.execute();
+        if (m_board.isSimulationMode()) {
+            if (!m_playerCommandStack.isFull()) {
+                m_playerCommandStack.addAndExecute(itc);
+                m_playerCommandView.updateView(false);
+
+                if (m_playerCommandStack.isFull()) {
+                    m_board.clearPlayerMoves();
+                    executeBtn.setEnabled(true);
+                }
+            }
+
+        }
         redrawBoard();
     }
 }

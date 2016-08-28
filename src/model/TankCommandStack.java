@@ -46,7 +46,7 @@ public class TankCommandStack {
     }
     
     public int currentSize() {
-        return m_historyStack.capacity();
+        return m_historyStack.size();
     }
     
     public void clear() {

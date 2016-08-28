@@ -15,7 +15,6 @@ public class PlayerTank extends Tank {
     
     public PlayerTank(Tile tile, Board board) {
         super(tile, board);
-        updatePlayerMoves();
     }
     
     @Override

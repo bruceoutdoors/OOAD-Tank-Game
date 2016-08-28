@@ -18,7 +18,7 @@ public class Board {
     private final int m_col;
     private PlayerTank m_playerTank;
     private EnemyTank m_enemyTank;
-    private Boolean m_isSimulationMode = true;
+    private Boolean m_isSimulationMode = false;
 
     public Board(int row, int col) {
         m_boardArr = new Tile[row][col];
@@ -30,11 +30,15 @@ public class Board {
                 m_boardArr[i][j] = new Tile(this, i, j);
             }
         }
-
+        
         m_playerTank = new PlayerTank(m_boardArr[m_row - 1][m_col - 1], this);
         m_enemyTank = new EnemyTank(m_boardArr[0][0], this);
         m_playerTank.setDirection(Direction.LEFT);
         m_enemyTank.setDirection(Direction.RIGHT);
+        
+        setSimulationMode(true);
+        
+        m_playerTank.updatePlayerMoves();
     }
     
     public void resetBoard() {
@@ -111,6 +115,13 @@ public class Board {
     
     public void setSimulationMode(Boolean b) {
         m_isSimulationMode = b;
+        
+        // hide enemy tank during simulation
+        if (m_isSimulationMode) {
+            m_enemyTank.m_tile.setTank(null);
+        } else {
+            m_enemyTank.m_tile.setTank(m_enemyTank);
+        }
     }
     
     public Boolean isSimulationMode() {

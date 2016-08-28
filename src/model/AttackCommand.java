@@ -47,7 +47,7 @@ public class AttackCommand implements ITankCommand {
     
     @Override 
     public String toString() {
-        return "Attack " + Tile.getDirectionStr(m_direction) + " tile.";
+        return "Attack " + Tile.getDirectionStr(m_direction) + " Tile";
     }
 
 }
