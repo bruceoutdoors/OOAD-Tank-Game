@@ -33,7 +33,12 @@ public class CommandStackView {
         Iterator<ITankCommand> iter = m_tcs.getIterator();
         while (iter.hasNext()) {
             ITankCommand itc = iter.next();
-            m_model.add(0, itc.toString());
+            if (isMasked) {
+                m_model.add(0,  "Command #" + i.toString());
+            } else {
+                m_model.add(0, i.toString() + " - " + itc.toString());
+            }
+            
             i++;
         }
         

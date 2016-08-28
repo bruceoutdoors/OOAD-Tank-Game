@@ -1,27 +1,19 @@
 
 import java.awt.Color;
-import java.awt.Dimension;
-import java.awt.FlowLayout;
 import java.awt.GridLayout;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.nio.file.Paths;
 import java.util.Observable;
 import java.util.Observer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.swing.DefaultListModel;
-import javax.swing.ImageIcon;
-import javax.swing.JButton;
-import javax.swing.JMenuItem;
-import javax.swing.ListModel;
-import javax.swing.SwingUtilities;
-import javax.swing.UIManager;
 import model.board.Board;
 import model.command.ITankCommand;
-import model.tank.PlayerTank;
 import model.command.TankCommandStack;
 import model.board.Tile;
+import model.command.TankCommandFileIO;
 import view.CommandStackView;
 import view.TankCommandPopupMenu;
 import view.TileView;
@@ -37,6 +29,9 @@ import view.TileView;
  */
 public class TankGame extends javax.swing.JFrame implements Observer {
 
+    final String ENEMY_MEMORY_PATH = "saved/enemymoves.txt";
+    final String PLAYER_MEMORY_PATH = "saved/playermoves.txt";
+
     private int ROW = 3;
     private int COL = 3;
     private int MAX_COMMANDS = 5;
@@ -51,6 +46,8 @@ public class TankGame extends javax.swing.JFrame implements Observer {
 
     /**
      * Creates new form TankGame
+     *
+     * @throws java.io.IOException
      */
     public TankGame() throws IOException {
 
@@ -69,8 +66,8 @@ public class TankGame extends javax.swing.JFrame implements Observer {
         }
 //        m_board.getPlayerTank().attack(Tile.Direction.TOP);
 
-        m_playerCommandStack = new TankCommandStack(MAX_COMMANDS);
-        m_enemyCommandStack = new TankCommandStack(MAX_COMMANDS);
+        setupEnemyTank();
+        setupPlayerTank();
         m_enemyCommandView = new CommandStackView(enemyCommandDisplay, m_enemyCommandStack);
         m_playerCommandView = new CommandStackView(playerCommandDisplay, m_playerCommandStack);
 
@@ -79,6 +76,14 @@ public class TankGame extends javax.swing.JFrame implements Observer {
 
     public void redrawBoard() {
         Integer movesRemain = MAX_COMMANDS - m_playerCommandStack.currentSize();
+
+        if (m_playerCommandStack.isFull()) {
+            m_board.clearPlayerMoves();
+            executeBtn.setEnabled(true);
+        } else {
+            m_board.getPlayerTank().updatePlayerMoves();
+        }
+
         movesRemainLbl.setText(movesRemain.toString());
         if (movesRemain == 0) {
             movesRemainLbl.setForeground(Color.RED);
@@ -91,6 +96,9 @@ public class TankGame extends javax.swing.JFrame implements Observer {
                 m_boardButtons[r][c].updateTile();
             }
         }
+
+        m_playerCommandView.updateView(false);
+        m_enemyCommandView.updateView(true);
     }
 
     /**
@@ -124,6 +132,11 @@ public class TankGame extends javax.swing.JFrame implements Observer {
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("OOAD Robot Wars");
+        addWindowListener(new java.awt.event.WindowAdapter() {
+            public void windowClosing(java.awt.event.WindowEvent evt) {
+                formWindowClosing(evt);
+            }
+        });
 
         board.setBackground(new java.awt.Color(153, 255, 255));
         board.setLayout(null);
@@ -239,10 +252,24 @@ public class TankGame extends javax.swing.JFrame implements Observer {
     }// </editor-fold>//GEN-END:initComponents
 
     private void newGameMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_newGameMenuItemActionPerformed
-        // TODO add your handling code here:
+        try {
+            File file = new File(Paths.get(PLAYER_MEMORY_PATH).toString());
+            file.delete();
+            file = new File(Paths.get(ENEMY_MEMORY_PATH).toString());
+            file.delete();
+        } catch (Exception e) {
+
+        }
+
+        setupEnemyTank();
+        setupPlayerTank();
+        redrawBoard();
     }//GEN-LAST:event_newGameMenuItemActionPerformed
 
-    
+    private void formWindowClosing(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowClosing
+        saveGameToFiles();
+    }//GEN-LAST:event_formWindowClosing
+
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JMenuItem aboutMenuItem;
@@ -277,15 +304,45 @@ public class TankGame extends javax.swing.JFrame implements Observer {
         if (m_board.isSimulationMode()) {
             if (!m_playerCommandStack.isFull()) {
                 m_playerCommandStack.addAndExecute(itc);
-                m_playerCommandView.updateView(false);
-
-                if (m_playerCommandStack.isFull()) {
-                    m_board.clearPlayerMoves();
-                    executeBtn.setEnabled(true);
-                }
             }
 
         }
         redrawBoard();
     }
+
+    private void setupEnemyTank() {
+        TankCommandFileIO io = new TankCommandFileIO(m_board.getEnemyTank());
+
+        try {
+            m_enemyCommandStack = io.read(ENEMY_MEMORY_PATH, MAX_COMMANDS);
+            assert m_enemyCommandStack.currentSize() == MAX_COMMANDS;
+        } catch (IOException ex) {
+            m_enemyCommandStack = m_board.getEnemyTank().randGenerateMoves(MAX_COMMANDS);
+        }
+
+        m_board.resetBoard();
+    }
+
+    private void saveGameToFiles() {
+        TankCommandFileIO ioEnemy = new TankCommandFileIO((m_board.getEnemyTank()));
+        TankCommandFileIO ioPlayer = new TankCommandFileIO((m_board.getPlayerTank()));
+
+        try {
+            ioEnemy.write(m_enemyCommandStack, ENEMY_MEMORY_PATH);
+            ioPlayer.write(m_playerCommandStack, PLAYER_MEMORY_PATH);
+        } catch (Exception ex) {
+            Logger.getLogger(TankGame.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+
+    private void setupPlayerTank() {
+        TankCommandFileIO io = new TankCommandFileIO(m_board.getPlayerTank());
+
+        try {
+            m_playerCommandStack = io.read(PLAYER_MEMORY_PATH, MAX_COMMANDS);
+        } catch (IOException ex) {
+            m_playerCommandStack = new TankCommandStack(MAX_COMMANDS);
+        }
+    }
+
 }

@@ -31,7 +31,7 @@ public class TestBoard {
         System.out.println("hello");
         
         TankCommandFileIO io = new TankCommandFileIO(b.getEnemyTank());
-        TankCommandStack s = io.read("SAVED_COMMANDS.txt");
+        TankCommandStack s = io.read("SAVED_COMMANDS.txt", 4);
 
         System.out.println(s);
         

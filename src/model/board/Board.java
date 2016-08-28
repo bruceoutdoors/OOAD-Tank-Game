@@ -55,6 +55,10 @@ public class Board {
         m_enemyTank.setAlive(true);
         m_playerTank.setTile(m_boardArr[m_row - 1][m_col - 1]);
         m_enemyTank.setTile(m_boardArr[0][0]);
+        
+        if (m_isSimulationMode) {
+            m_enemyTank.getTile().setTank(null);
+        }
     }
 
     public Tile getNeighborTile(Tile t, Direction d) {

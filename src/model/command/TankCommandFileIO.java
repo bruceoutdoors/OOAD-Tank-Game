@@ -5,6 +5,7 @@
  */
 package model.command;
 
+import java.io.File;
 import model.board.Tile;
 import model.command.AttackCommand;
 import model.command.ITankCommand;
@@ -30,12 +31,12 @@ public class TankCommandFileIO {
         m_tank = t;
     }
 
-    public TankCommandStack read(String path) throws IOException {
+    public TankCommandStack read(String path, int size) throws IOException {
         byte[] encoded = Files.readAllBytes(Paths.get(path));
         String filecontents = new String(encoded, Charset.defaultCharset());
         filecontents = filecontents.trim();
         String commandStrs[] = filecontents.split(" ");
-        TankCommandStack tcs = new TankCommandStack(commandStrs.length);
+        TankCommandStack tcs = new TankCommandStack(size);
 
         for (String c : commandStrs) {
             if ("AT".equals(c)) {
@@ -59,7 +60,7 @@ public class TankCommandFileIO {
         return tcs;
     }
 
-    public void write(TankCommandStack tcs, String path) throws FileNotFoundException {
+    public void write(TankCommandStack tcs, String path) throws FileNotFoundException, IOException {
         String commandStr = "";
 
         Iterator<ITankCommand> iter = tcs.getIterator();
@@ -101,8 +102,11 @@ public class TankCommandFileIO {
             }
             commandStr += " ";
         }
-
-        try (PrintWriter out = new PrintWriter(path)) {
+        String fullpath = Paths.get(path).toString();
+        File file = new File(fullpath);
+        file.getParentFile().mkdirs();
+        file.createNewFile();
+        try (PrintWriter out = new PrintWriter(fullpath)) {
             out.println(commandStr);
         }
     }
