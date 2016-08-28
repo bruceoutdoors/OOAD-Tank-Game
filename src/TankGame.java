@@ -36,10 +36,10 @@ import view.TileView;
  * @author bruceoutdoors
  */
 public class TankGame extends javax.swing.JFrame implements Observer {
-
+    
     final String ENEMY_MEMORY_PATH = "saved/enemymoves.txt";
     final String PLAYER_MEMORY_PATH = "saved/playermoves.txt";
-
+    
     private int ROW = 3;
     private int COL = 3;
     private int MAX_COMMANDS = 5;
@@ -57,15 +57,15 @@ public class TankGame extends javax.swing.JFrame implements Observer {
     private Boolean m_isProcessingCommandStack = false;
     private Boolean m_hasWon = false;
     private Integer m_numTries = 0;
-
+    
     private class executeStepTask extends TimerTask {
-
+        
         @Override
         public void run() {
             GameState state = m_executor.step();
-
+            
             redrawBoard();
-
+            
             if (m_executor.getCurrentStep() == 1) {
                 playerCommandDisplay.clearSelection();
                 enemyCommandDisplay.clearSelection();
@@ -74,7 +74,7 @@ public class TankGame extends javax.swing.JFrame implements Observer {
                 playerCommandDisplay.setSelectedIndex(displayIdx);
                 enemyCommandDisplay.setSelectedIndex(displayIdx);
             }
-
+            
             if (state == GameState.DRAW) {
                 JOptionPane.showMessageDialog(m_this, "It's a draw!");
             } else if (state == GameState.DOUBLEKILL) {
@@ -88,12 +88,12 @@ public class TankGame extends javax.swing.JFrame implements Observer {
                         + m_numTries.toString()
                         + " attempts!");
             }
-
+            
             if (state != GameState.STILLEXECUTING) {
                 if (!m_hasWon) {
                     m_numTries++;
                 }
-
+                
                 m_executorTimer.cancel();
                 // pause 1 second:
                 try {
@@ -101,12 +101,12 @@ public class TankGame extends javax.swing.JFrame implements Observer {
                 } catch (InterruptedException ex) {
                     Logger.getLogger(TankGame.class.getName()).log(Level.SEVERE, null, ex);
                 }
-
+                
                 undoBtn.setEnabled(true);
                 returnBackToSimulationMode();
             }
         }
-
+        
     }
 
     /**
@@ -115,7 +115,7 @@ public class TankGame extends javax.swing.JFrame implements Observer {
      * @throws java.io.IOException
      */
     public TankGame() throws IOException {
-
+        
         initComponents();
         m_board = new Board(ROW, COL);
         m_tilesArr = m_board.getBoardArr();
@@ -129,13 +129,13 @@ public class TankGame extends javax.swing.JFrame implements Observer {
                 board.add(jb);
             }
         }
-
+        
         setupEnemyTank();
         setupPlayerTank();
-
+        
         redrawBoard();
     }
-
+    
     public void redrawBoard() {
         Integer movesRemain = MAX_COMMANDS - m_playerCommandStack.currentSize();
         attemptCountLbl.setText(m_numTries.toString());
@@ -144,7 +144,7 @@ public class TankGame extends javax.swing.JFrame implements Observer {
         } else {
             youWonLbl.setVisible(false);
         }
-
+        
         if (m_board.isSimulationMode()) {
             simulationMsg.setVisible(false);
             if (m_playerCommandStack.isFull()) {
@@ -154,7 +154,7 @@ public class TankGame extends javax.swing.JFrame implements Observer {
                 executeBtn.setEnabled(false);
                 m_board.getPlayerTank().updatePlayerMoves();
             }
-
+            
             movesRemainLbl.setText(movesRemain.toString());
             if (movesRemain == 0) {
                 movesRemainLbl.setForeground(Color.RED);
@@ -164,14 +164,14 @@ public class TankGame extends javax.swing.JFrame implements Observer {
         } else {
             simulationMsg.setVisible(true);
         }
-
+        
         for (Integer r = 0; r < ROW; r++) {
             for (Integer c = 0; c < COL; c++) {
                 int w = m_boardButtons[r][c].getWidth();
                 m_boardButtons[r][c].updateTile();
             }
         }
-
+        
         m_playerCommandView.updateView(false);
         m_enemyCommandView.updateView(true);
     }
@@ -380,10 +380,11 @@ public class TankGame extends javax.swing.JFrame implements Observer {
                 file = new File(Paths.get(ENEMY_MEMORY_PATH).toString());
                 file.delete();
             } catch (Exception e) {
-
+                
             }
             m_hasWon = false;
             m_numTries = 0;
+            attemptCountLbl.setForeground(Color.BLACK);
             setupEnemyTank();
             setupPlayerTank();
             redrawBoard();
@@ -401,7 +402,7 @@ public class TankGame extends javax.swing.JFrame implements Observer {
         executeBtn.setEnabled(false);
         m_board.setSimulationMode(false);
         m_board.resetBoard();
-
+        
         m_executorTimer = new Timer();
         m_executorTimer.scheduleAtFixedRate(new executeStepTask(), 0, 1000);
     }//GEN-LAST:event_executeBtnActionPerformed
@@ -444,42 +445,42 @@ public class TankGame extends javax.swing.JFrame implements Observer {
             onITankCommand((ITankCommand) arg);
         }
     }
-
+    
     private void onITankCommand(ITankCommand itc) {
         if (m_board.isSimulationMode()) {
             if (!m_playerCommandStack.isFull()) {
                 m_playerCommandStack.addAndExecute(itc);
             }
-
+            
         }
-
+        
         if (!m_isProcessingCommandStack) {
             redrawBoard();
         }
     }
-
+    
     private void setupEnemyTank() {
         m_isProcessingCommandStack = true;
         TankCommandFileIO io = new TankCommandFileIO(m_board.getEnemyTank());
-
+        
         try {
             m_enemyCommandStack = io.read(ENEMY_MEMORY_PATH, MAX_COMMANDS);
             assert m_enemyCommandStack.currentSize() == MAX_COMMANDS;
         } catch (IOException ex) {
             m_enemyCommandStack = m_board.getEnemyTank().randGenerateMoves(MAX_COMMANDS);
         }
-
+        
         m_board.resetBoard();
         m_enemyCommandView = new CommandStackView(enemyCommandDisplay, m_enemyCommandStack);
-
+        
         m_board.resetBlasts();
         m_isProcessingCommandStack = false;
     }
-
+    
     private void saveGameToFiles() {
         TankCommandFileIO ioEnemy = new TankCommandFileIO((m_board.getEnemyTank()));
         TankCommandFileIO ioPlayer = new TankCommandFileIO((m_board.getPlayerTank()));
-
+        
         try {
             ioEnemy.write(m_enemyCommandStack, ENEMY_MEMORY_PATH);
             ioPlayer.write(m_playerCommandStack, PLAYER_MEMORY_PATH);
@@ -487,37 +488,37 @@ public class TankGame extends javax.swing.JFrame implements Observer {
             Logger.getLogger(TankGame.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
-
+    
     private void setupPlayerTank() {
         m_isProcessingCommandStack = true;
         TankCommandFileIO io = new TankCommandFileIO(m_board.getPlayerTank());
-
+        
         try {
             m_playerCommandStack = io.read(PLAYER_MEMORY_PATH, MAX_COMMANDS);
         } catch (IOException ex) {
             m_playerCommandStack = new TankCommandStack(MAX_COMMANDS);
         }
-
+        
         m_playerCommandView = new CommandStackView(playerCommandDisplay, m_playerCommandStack);
         m_board.resetBlasts();
-
+        
         m_isProcessingCommandStack = false;
     }
-
+    
     private void returnBackToSimulationMode() {
         m_board.setSimulationMode(true);
         m_isProcessingCommandStack = true;
         m_board.resetBoard();
-
+        
         Iterator<ITankCommand> iter = m_playerCommandStack.getIterator();
         while (iter.hasNext()) {
             ITankCommand itc = iter.next();
             itc.execute();
         }
-
+        
         m_board.resetBlasts();
         m_isProcessingCommandStack = false;
         redrawBoard();
     }
-
+    
 }
