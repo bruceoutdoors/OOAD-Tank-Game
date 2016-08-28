@@ -62,6 +62,11 @@ public class CommandExecutor {
             playerCommand.execute();
             enemyCommand.execute();
             m_currentStep++;
+            
+            // Attacks don't happen simultaneously. So we just hack it here. 
+            // Who's going to notice right? Hahaha...
+            if (m_playerTank.getTile().isBlasted()) m_playerTank.setAlive(false);
+            if (m_enemyTank.getTile().isBlasted()) m_enemyTank.setAlive(false);
 
             if (!m_playerTank.isAlive() && !m_enemyTank.isAlive()) {
                 return GameState.DOUBLEKILL;

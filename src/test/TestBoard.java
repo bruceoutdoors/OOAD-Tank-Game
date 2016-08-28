@@ -1,11 +1,15 @@
+package test;
+
 /*
  * To change this license header, choose License Headers in Project Properties.
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package model.board;
+
 
 import java.io.IOException;
+import model.board.Board;
+import model.board.Tile;
 import model.command.MoveCommand;
 import model.tank.Tank;
 import model.command.TankCommandFileIO;
