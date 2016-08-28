@@ -3,9 +3,13 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package model;
+package model.board;
 
 import java.io.IOException;
+import model.command.MoveCommand;
+import model.tank.Tank;
+import model.command.TankCommandFileIO;
+import model.command.TankCommandStack;
 
 /**
  *

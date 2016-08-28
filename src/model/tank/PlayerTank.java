@@ -3,9 +3,14 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package model;
+package model.tank;
 
+import model.board.Board;
 import java.util.ArrayList;
+import model.command.AttackCommand;
+import model.command.ITankCommand;
+import model.command.MoveCommand;
+import model.board.Tile;
 
 /**
  *
@@ -47,12 +52,12 @@ public class PlayerTank extends Tank {
                 continue;
             }
 
-            Tile topTile = m_tile.getNeighbor(d);
-            if (topTile != null) {
+            Tile t = m_tile.getNeighbor(d);
+            if (t != null) {
                 ArrayList<ITankCommand> commands = new ArrayList<>();
                 commands.add(new AttackCommand(this, d));
                 commands.add(new MoveCommand(this, d));
-                topTile.setPlayerCommands(commands);
+                t.setPlayerCommands(commands);
             }
         }
     }

@@ -3,10 +3,12 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package model;
+package model.tank;
 
+import model.board.Board;
 import java.util.ArrayList;
-import model.Tile.Direction;
+import model.board.Tile;
+import model.board.Tile.Direction;
 
 /**
  *

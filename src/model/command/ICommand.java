@@ -3,17 +3,15 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package model;
-
-import model.Tile.Direction;
+package model.command;
 
 /**
  *
  * @author bruceoutdoors
  */
-public interface ITankCommand {
-    String getCommandName();
+public interface ICommand {
+
     void execute();
+
     void undo();
-    Direction getDirection();
 }

@@ -3,8 +3,11 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package model;
+package model.board;
 
+import model.command.ITankCommand;
+import model.tank.Tank;
+import model.board.Board;
 import java.util.ArrayList;
 
 /**

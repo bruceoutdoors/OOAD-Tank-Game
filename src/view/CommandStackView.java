@@ -8,8 +8,8 @@ package view;
 import java.util.Iterator;
 import javax.swing.DefaultListModel;
 import javax.swing.JList;
-import model.ITankCommand;
-import model.TankCommandStack;
+import model.command.ITankCommand;
+import model.command.TankCommandStack;
 
 /**
  *

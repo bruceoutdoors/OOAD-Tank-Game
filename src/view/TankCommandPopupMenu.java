@@ -14,8 +14,8 @@ import java.util.Observer;
 import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
 import javax.swing.SwingUtilities;
-import model.ITankCommand;
-import model.Tile;
+import model.command.ITankCommand;
+import model.board.Tile;
 
 /**
  *

@@ -3,9 +3,11 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package model;
+package model.board;
 
-import model.Tile.Direction;
+import model.tank.EnemyTank;
+import model.tank.PlayerTank;
+import model.board.Tile.Direction;
 
 /**
  *
@@ -118,9 +120,10 @@ public class Board {
         
         // hide enemy tank during simulation
         if (m_isSimulationMode) {
-            m_enemyTank.m_tile.setTank(null);
+            m_enemyTank.getTile().setTank(null);
         } else {
-            m_enemyTank.m_tile.setTank(m_enemyTank);
+            m_enemyTank.getTile().setTank(m_enemyTank);
+            clearPlayerMoves();
         }
     }
     

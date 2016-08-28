@@ -3,16 +3,21 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package model;
+package model.command;
+
+import model.board.Tile.Direction;
 
 /**
  *
  * @author bruceoutdoors
  */
-public class EnemyTank extends Tank {
-    
-    public EnemyTank(Tile tile, Board board) {
-        super(tile, board);
-    }
-    
+public interface ITankCommand extends ICommand {
+
+    String getCommandName();
+
+    void execute();
+
+    void undo();
+
+    Direction getDirection();
 }
