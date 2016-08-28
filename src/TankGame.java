@@ -76,7 +76,7 @@ public class TankGame extends javax.swing.JFrame implements Observer {
             if (state == GameState.DRAW) {
                 JOptionPane.showMessageDialog(m_this, "It's a draw!");
             } else if (state == GameState.DOUBLEKILL) {
-                JOptionPane.showMessageDialog(m_this, "Damn! You both died!");
+                JOptionPane.showMessageDialog(m_this, "Damn! You both died! Either both collide or blast each other up!");
             } else if (state == GameState.ENEMYWIN) {
                 JOptionPane.showMessageDialog(m_this, "You got killed by the AI!");
             } else if (state == GameState.PLAYERWIN) {
@@ -136,6 +136,7 @@ public class TankGame extends javax.swing.JFrame implements Observer {
                 m_board.clearPlayerMoves();
                 executeBtn.setEnabled(true);
             } else {
+                executeBtn.setEnabled(false);
                 m_board.getPlayerTank().updatePlayerMoves();
             }
 
@@ -349,18 +350,22 @@ public class TankGame extends javax.swing.JFrame implements Observer {
     }// </editor-fold>//GEN-END:initComponents
 
     private void newGameMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_newGameMenuItemActionPerformed
-        try {
-            File file = new File(Paths.get(PLAYER_MEMORY_PATH).toString());
-            file.delete();
-            file = new File(Paths.get(ENEMY_MEMORY_PATH).toString());
-            file.delete();
-        } catch (Exception e) {
+        int answer = JOptionPane.showConfirmDialog(m_this, "Are you sure you want to create new game? This will restart the AI moves!");
+        if (answer == JOptionPane.YES_OPTION) {
+            try {
+                File file = new File(Paths.get(PLAYER_MEMORY_PATH).toString());
+                file.delete();
+                file = new File(Paths.get(ENEMY_MEMORY_PATH).toString());
+                file.delete();
+            } catch (Exception e) {
 
+            }
+
+            setupEnemyTank();
+            setupPlayerTank();
+            redrawBoard();
         }
 
-        setupEnemyTank();
-        setupPlayerTank();
-        redrawBoard();
     }//GEN-LAST:event_newGameMenuItemActionPerformed
 
     private void formWindowClosing(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowClosing
