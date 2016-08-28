@@ -5,14 +5,14 @@
  */
 package model.tank;
 
-import model.board.Board;
 import java.util.ArrayList;
 import java.util.Random;
+import model.board.Board;
+import model.board.Tile;
 import model.command.AttackCommand;
 import model.command.ITankCommand;
 import model.command.MoveCommand;
 import model.command.TankCommandStack;
-import model.board.Tile;
 
 /**
  *

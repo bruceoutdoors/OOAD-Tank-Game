@@ -5,9 +5,9 @@
  */
 package model.command;
 
-import model.tank.Tank;
 import model.board.Tile;
 import model.board.Tile.Direction;
+import model.tank.Tank;
 
 /**
  *

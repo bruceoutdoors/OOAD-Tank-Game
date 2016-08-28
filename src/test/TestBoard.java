@@ -11,9 +11,9 @@ import java.io.IOException;
 import model.board.Board;
 import model.board.Tile;
 import model.command.MoveCommand;
-import model.tank.Tank;
 import model.command.TankCommandFileIO;
 import model.command.TankCommandStack;
+import model.tank.Tank;
 
 /**
  *

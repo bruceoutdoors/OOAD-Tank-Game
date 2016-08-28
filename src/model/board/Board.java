@@ -5,9 +5,9 @@
  */
 package model.board;
 
+import model.board.Tile.Direction;
 import model.tank.EnemyTank;
 import model.tank.PlayerTank;
-import model.board.Tile.Direction;
 
 /**
  *

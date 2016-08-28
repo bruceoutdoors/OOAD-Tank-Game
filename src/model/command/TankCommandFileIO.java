@@ -6,11 +6,6 @@
 package model.command;
 
 import java.io.File;
-import model.board.Tile;
-import model.command.AttackCommand;
-import model.command.ITankCommand;
-import model.command.MoveCommand;
-import model.tank.Tank;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -18,6 +13,8 @@ import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Iterator;
+import model.board.Tile;
+import model.tank.Tank;
 
 /**
  *

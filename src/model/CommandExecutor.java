@@ -5,11 +5,11 @@
  */
 package model;
 
-import model.command.TankCommandStack;
-import model.command.ITankCommand;
-import model.tank.Tank;
-import model.board.Board;
 import java.util.Iterator;
+import model.board.Board;
+import model.command.ITankCommand;
+import model.command.TankCommandStack;
+import model.tank.Tank;
 
 /**
  *

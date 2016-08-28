@@ -6,7 +6,6 @@
 package model.tank;
 
 import model.board.Board;
-import java.util.ArrayList;
 import model.board.Tile;
 import model.board.Tile.Direction;
 

@@ -5,10 +5,9 @@
  */
 package model.board;
 
+import java.util.ArrayList;
 import model.command.ITankCommand;
 import model.tank.Tank;
-import model.board.Board;
-import java.util.ArrayList;
 
 /**
  *

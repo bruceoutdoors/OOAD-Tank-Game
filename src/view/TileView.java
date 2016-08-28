@@ -11,18 +11,17 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.io.IOException;
 import java.util.Observer;
-import javax.swing.ImageIcon;
-import javax.swing.JButton;
-import model.AssetManager;
-import model.ImageTool;
-import model.tank.PlayerTank;
-import model.tank.Tank;
-import model.board.Tile;
-import model.board.Tile.Direction;
 import java.util.Timer;
 import java.util.TimerTask;
-import javax.swing.border.Border;
+import javax.swing.ImageIcon;
+import javax.swing.JButton;
 import javax.swing.border.LineBorder;
+import model.AssetManager;
+import model.ImageTool;
+import model.board.Tile;
+import model.board.Tile.Direction;
+import model.tank.PlayerTank;
+import model.tank.Tank;
 
 /**
  *

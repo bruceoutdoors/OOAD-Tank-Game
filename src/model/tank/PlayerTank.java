@@ -5,12 +5,12 @@
  */
 package model.tank;
 
-import model.board.Board;
 import java.util.ArrayList;
+import model.board.Board;
+import model.board.Tile;
 import model.command.AttackCommand;
 import model.command.ITankCommand;
 import model.command.MoveCommand;
-import model.board.Tile;
 
 /**
  *

@@ -5,7 +5,6 @@
  */
 package model.command;
 
-import model.command.ITankCommand;
 import java.util.Iterator;
 import java.util.Stack;
 
