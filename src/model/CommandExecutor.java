@@ -17,12 +17,13 @@ import java.util.Iterator;
  */
 public class CommandExecutor {
 
-    public enum State {
+    public enum GameState {
         NONE,
         STILLEXECUTING,
         PLAYERWIN,
         ENEMYWIN,
-        DRAW
+        DRAW,
+        DOUBLEKILL
     }
 
     private int m_currentStep = 0;
@@ -45,15 +46,11 @@ public class CommandExecutor {
         m_enemyCommandIterator = m_enemyStack.getIterator();
     }
 
-    public Boolean isFinished() {
-        return !m_playerCommandIterator.hasNext();
-    }
-
-    public State step() {
+    public GameState step() {
         // begining. Do nothing.
         if (m_currentStep == 0) {
             m_currentStep++;
-            return State.STILLEXECUTING;
+            return GameState.STILLEXECUTING;
         }
         
         if (m_playerCommandIterator.hasNext()) {
@@ -67,14 +64,18 @@ public class CommandExecutor {
             m_currentStep++;
 
             if (!m_playerTank.isAlive() && !m_enemyTank.isAlive()) {
-                return State.DRAW;
+                return GameState.DOUBLEKILL;
             } else if (!m_playerTank.isAlive()) {
-                return State.ENEMYWIN;
+                return GameState.ENEMYWIN;
             } else if (!m_enemyTank.isAlive()) {
-                return State.PLAYERWIN;
+                return GameState.PLAYERWIN;
+            } else if (!m_playerCommandIterator.hasNext() 
+                    && m_enemyTank.isAlive() 
+                    && m_playerTank.isAlive()) {
+                return GameState.DRAW;
             }
 
-            return State.STILLEXECUTING;
+            return GameState.STILLEXECUTING;
         } else {
             throw new RuntimeException("Nothing more to step. Hello??");
         }

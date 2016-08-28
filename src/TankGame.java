@@ -5,6 +5,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.Paths;
+import java.util.Iterator;
 import java.util.Observable;
 import java.util.Observer;
 import java.util.Timer;
@@ -12,7 +13,10 @@ import java.util.TimerTask;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.swing.JFrame;
+import javax.swing.JOptionPane;
 import model.CommandExecutor;
+import model.CommandExecutor.GameState;
 import model.board.Board;
 import model.command.ITankCommand;
 import model.command.TankCommandStack;
@@ -49,28 +53,48 @@ public class TankGame extends javax.swing.JFrame implements Observer {
     private CommandStackView m_enemyCommandView;
     private CommandExecutor m_executor;
     private Timer m_executorTimer;
+    private JFrame m_this = this;
+    private Boolean isProcessingCommandStack = false;
 
     private class executeStepTask extends TimerTask {
 
         @Override
         public void run() {
-            m_executor.step();
-            if (m_executor.isFinished()) {
+            GameState state = m_executor.step();
+
+            redrawBoard();
+
+            if (m_executor.getCurrentStep() == 1) {
+                playerCommandDisplay.clearSelection();
+                enemyCommandDisplay.clearSelection();
+            } else {
+                int displayIdx = MAX_COMMANDS - m_executor.getCurrentStep() + 1;
+                playerCommandDisplay.setSelectedIndex(displayIdx);
+                enemyCommandDisplay.setSelectedIndex(displayIdx);
+            }
+
+            if (state == GameState.DRAW) {
+                JOptionPane.showMessageDialog(m_this, "It's a draw!");
+            } else if (state == GameState.DOUBLEKILL) {
+                JOptionPane.showMessageDialog(m_this, "Damn! You both died!");
+            } else if (state == GameState.ENEMYWIN) {
+                JOptionPane.showMessageDialog(m_this, "You got killed by the AI!");
+            } else if (state == GameState.PLAYERWIN) {
+                JOptionPane.showMessageDialog(m_this, "YOU WIN!! WIN WIN WIN!");
+            }
+
+            if (state != GameState.STILLEXECUTING) {
                 m_executorTimer.cancel();
+                // pause 1 second:
                 try {
                     TimeUnit.SECONDS.sleep(1);
                 } catch (InterruptedException ex) {
                     Logger.getLogger(TankGame.class.getName()).log(Level.SEVERE, null, ex);
                 }
+
                 undoBtn.setEnabled(true);
-                m_board.resetBoard();
-                m_board.setSimulationMode(true);
+                returnBackToSimulationMode();
             }
-            
-            redrawBoard();
-            int displayIdx = MAX_COMMANDS - m_executor.getCurrentStep();
-            playerCommandDisplay.setSelectedIndex(displayIdx);
-            enemyCommandDisplay.setSelectedIndex(displayIdx);
         }
 
     }
@@ -99,8 +123,6 @@ public class TankGame extends javax.swing.JFrame implements Observer {
 
         setupEnemyTank();
         setupPlayerTank();
-        
-        
 
         redrawBoard();
     }
@@ -109,6 +131,7 @@ public class TankGame extends javax.swing.JFrame implements Observer {
         Integer movesRemain = MAX_COMMANDS - m_playerCommandStack.currentSize();
 
         if (m_board.isSimulationMode()) {
+            simulationMsg.setVisible(false);
             if (m_playerCommandStack.isFull()) {
                 m_board.clearPlayerMoves();
                 executeBtn.setEnabled(true);
@@ -122,7 +145,10 @@ public class TankGame extends javax.swing.JFrame implements Observer {
             } else {
                 movesRemainLbl.setForeground(new Color(0, 153, 0));
             }
+        } else {
+            simulationMsg.setVisible(true);
         }
+
         for (Integer r = 0; r < ROW; r++) {
             for (Integer c = 0; c < COL; c++) {
                 int w = m_boardButtons[r][c].getWidth();
@@ -156,6 +182,9 @@ public class TankGame extends javax.swing.JFrame implements Observer {
         executeBtn = new javax.swing.JButton();
         jLabel2 = new javax.swing.JLabel();
         movesRemainLbl = new javax.swing.JLabel();
+        simulationMsg = new javax.swing.JLabel();
+        jLabel4 = new javax.swing.JLabel();
+        jLabel5 = new javax.swing.JLabel();
         jMenuBar2 = new javax.swing.JMenuBar();
         jMenu3 = new javax.swing.JMenu();
         newGameMenuItem = new javax.swing.JMenuItem();
@@ -226,6 +255,15 @@ public class TankGame extends javax.swing.JFrame implements Observer {
         movesRemainLbl.setForeground(new java.awt.Color(0, 153, 0));
         movesRemainLbl.setText("15");
 
+        simulationMsg.setForeground(new java.awt.Color(255, 0, 51));
+        simulationMsg.setText("Executing moves... please wait...");
+
+        jLabel4.setFont(new java.awt.Font("Tahoma", 0, 12)); // NOI18N
+        jLabel4.setText("Number of attempts:");
+
+        jLabel5.setFont(new java.awt.Font("Tahoma", 1, 14)); // NOI18N
+        jLabel5.setText("0");
+
         jMenu3.setText("File");
 
         newGameMenuItem.setText("New Game...");
@@ -256,34 +294,50 @@ public class TankGame extends javax.swing.JFrame implements Observer {
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
-                        .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, 88, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(board, javax.swing.GroupLayout.PREFERRED_SIZE, 150, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, 113, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(layout.createSequentialGroup()
+                                .addComponent(jLabel2)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(movesRemainLbl)
+                                .addGap(18, 18, 18)
+                                .addComponent(executeBtn)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addComponent(undoBtn))
+                            .addGroup(layout.createSequentialGroup()
+                                .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, 88, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                .addComponent(board, javax.swing.GroupLayout.PREFERRED_SIZE, 150, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, 113, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addGap(8, 8, 8))
                     .addGroup(layout.createSequentialGroup()
-                        .addComponent(jLabel2)
+                        .addComponent(simulationMsg)
+                        .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(jLabel4)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(movesRemainLbl)
-                        .addGap(18, 18, 18)
-                        .addComponent(executeBtn)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(undoBtn)))
-                .addGap(8, 8, 8))
+                        .addComponent(jLabel5)
+                        .addGap(0, 0, Short.MAX_VALUE))))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addContainerGap()
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel4)
+                    .addComponent(jLabel5))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel2)
                     .addComponent(movesRemainLbl)
                     .addComponent(executeBtn)
                     .addComponent(undoBtn))
-                .addGap(19, 19, 19)
+                .addGap(1, 1, 1)
+                .addComponent(simulationMsg)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(board, javax.swing.GroupLayout.PREFERRED_SIZE, 150, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -319,7 +373,7 @@ public class TankGame extends javax.swing.JFrame implements Observer {
         executeBtn.setEnabled(false);
         m_board.setSimulationMode(false);
         m_board.resetBoard();
-        
+
         m_executorTimer = new Timer();
         m_executorTimer.scheduleAtFixedRate(new executeStepTask(), 0, 1000);
     }//GEN-LAST:event_executeBtnActionPerformed
@@ -339,6 +393,8 @@ public class TankGame extends javax.swing.JFrame implements Observer {
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
+    private javax.swing.JLabel jLabel4;
+    private javax.swing.JLabel jLabel5;
     private javax.swing.JMenu jMenu3;
     private javax.swing.JMenu jMenu4;
     private javax.swing.JMenuBar jMenuBar2;
@@ -349,6 +405,7 @@ public class TankGame extends javax.swing.JFrame implements Observer {
     private javax.swing.JLabel movesRemainLbl;
     private javax.swing.JMenuItem newGameMenuItem;
     private javax.swing.JList<String> playerCommandDisplay;
+    private javax.swing.JLabel simulationMsg;
     private javax.swing.JButton undoBtn;
     // End of variables declaration//GEN-END:variables
 
@@ -366,10 +423,14 @@ public class TankGame extends javax.swing.JFrame implements Observer {
             }
 
         }
-        redrawBoard();
+
+        if (!isProcessingCommandStack) {
+            redrawBoard();
+        }
     }
 
     private void setupEnemyTank() {
+        isProcessingCommandStack = true;
         TankCommandFileIO io = new TankCommandFileIO(m_board.getEnemyTank());
 
         try {
@@ -381,6 +442,9 @@ public class TankGame extends javax.swing.JFrame implements Observer {
 
         m_board.resetBoard();
         m_enemyCommandView = new CommandStackView(enemyCommandDisplay, m_enemyCommandStack);
+
+        m_board.resetBlasts();
+        isProcessingCommandStack = false;
     }
 
     private void saveGameToFiles() {
@@ -396,6 +460,7 @@ public class TankGame extends javax.swing.JFrame implements Observer {
     }
 
     private void setupPlayerTank() {
+        isProcessingCommandStack = true;
         TankCommandFileIO io = new TankCommandFileIO(m_board.getPlayerTank());
 
         try {
@@ -403,8 +468,27 @@ public class TankGame extends javax.swing.JFrame implements Observer {
         } catch (IOException ex) {
             m_playerCommandStack = new TankCommandStack(MAX_COMMANDS);
         }
-        
+
         m_playerCommandView = new CommandStackView(playerCommandDisplay, m_playerCommandStack);
+        m_board.resetBlasts();
+
+        isProcessingCommandStack = false;
+    }
+
+    private void returnBackToSimulationMode() {
+        m_board.setSimulationMode(true);
+        isProcessingCommandStack = true;
+        m_board.resetBoard();
+
+        Iterator<ITankCommand> iter = m_playerCommandStack.getIterator();
+        while (iter.hasNext()) {
+            ITankCommand itc = iter.next();
+            itc.execute();
+        }
+
+        m_board.resetBlasts();
+        isProcessingCommandStack = false;
+        redrawBoard();
     }
 
 }

@@ -31,6 +31,10 @@ public class Tank {
         Tile target = m_tile.getNeighbor(d);
         if (target != null) {
             if (target.getTank() != null && !m_board.isSimulationMode()) {
+                // COLLISION COURSE!! Die Together! :D
+                target.getTank().setAlive(false);
+                setAlive(false);
+                
                 return false;
             }
 
