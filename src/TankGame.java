@@ -7,8 +7,12 @@ import java.io.IOException;
 import java.nio.file.Paths;
 import java.util.Observable;
 import java.util.Observer;
+import java.util.Timer;
+import java.util.TimerTask;
+import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import model.CommandExecutor;
 import model.board.Board;
 import model.command.ITankCommand;
 import model.command.TankCommandStack;
@@ -43,6 +47,33 @@ public class TankGame extends javax.swing.JFrame implements Observer {
     private TankCommandStack m_enemyCommandStack;
     private CommandStackView m_playerCommandView;
     private CommandStackView m_enemyCommandView;
+    private CommandExecutor m_executor;
+    private Timer m_executorTimer;
+
+    private class executeStepTask extends TimerTask {
+
+        @Override
+        public void run() {
+            m_executor.step();
+            if (m_executor.isFinished()) {
+                m_executorTimer.cancel();
+                try {
+                    TimeUnit.SECONDS.sleep(1);
+                } catch (InterruptedException ex) {
+                    Logger.getLogger(TankGame.class.getName()).log(Level.SEVERE, null, ex);
+                }
+                undoBtn.setEnabled(true);
+                m_board.resetBoard();
+                m_board.setSimulationMode(true);
+            }
+            
+            redrawBoard();
+            int displayIdx = MAX_COMMANDS - m_executor.getCurrentStep();
+            playerCommandDisplay.setSelectedIndex(displayIdx);
+            enemyCommandDisplay.setSelectedIndex(displayIdx);
+        }
+
+    }
 
     /**
      * Creates new form TankGame
@@ -68,8 +99,8 @@ public class TankGame extends javax.swing.JFrame implements Observer {
 
         setupEnemyTank();
         setupPlayerTank();
-        m_enemyCommandView = new CommandStackView(enemyCommandDisplay, m_enemyCommandStack);
-        m_playerCommandView = new CommandStackView(playerCommandDisplay, m_playerCommandStack);
+        
+        
 
         redrawBoard();
     }
@@ -77,18 +108,20 @@ public class TankGame extends javax.swing.JFrame implements Observer {
     public void redrawBoard() {
         Integer movesRemain = MAX_COMMANDS - m_playerCommandStack.currentSize();
 
-        if (m_playerCommandStack.isFull()) {
-            m_board.clearPlayerMoves();
-            executeBtn.setEnabled(true);
-        } else {
-            m_board.getPlayerTank().updatePlayerMoves();
-        }
+        if (m_board.isSimulationMode()) {
+            if (m_playerCommandStack.isFull()) {
+                m_board.clearPlayerMoves();
+                executeBtn.setEnabled(true);
+            } else {
+                m_board.getPlayerTank().updatePlayerMoves();
+            }
 
-        movesRemainLbl.setText(movesRemain.toString());
-        if (movesRemain == 0) {
-            movesRemainLbl.setForeground(Color.RED);
-        } else {
-            movesRemainLbl.setForeground(new Color(0, 153, 0));
+            movesRemainLbl.setText(movesRemain.toString());
+            if (movesRemain == 0) {
+                movesRemainLbl.setForeground(Color.RED);
+            } else {
+                movesRemainLbl.setForeground(new Color(0, 153, 0));
+            }
         }
         for (Integer r = 0; r < ROW; r++) {
             for (Integer c = 0; c < COL; c++) {
@@ -172,9 +205,19 @@ public class TankGame extends javax.swing.JFrame implements Observer {
         jPanel2.add(jLabel3, java.awt.BorderLayout.PAGE_START);
 
         undoBtn.setText("Undo");
+        undoBtn.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                undoBtnActionPerformed(evt);
+            }
+        });
 
         executeBtn.setText("Execute!");
         executeBtn.setEnabled(false);
+        executeBtn.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                executeBtnActionPerformed(evt);
+            }
+        });
 
         jLabel2.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
         jLabel2.setText("Moves Remaining:");
@@ -270,6 +313,22 @@ public class TankGame extends javax.swing.JFrame implements Observer {
         saveGameToFiles();
     }//GEN-LAST:event_formWindowClosing
 
+    private void executeBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_executeBtnActionPerformed
+        undoBtn.setEnabled(false);
+        m_executor = new CommandExecutor(m_board, m_playerCommandStack, m_enemyCommandStack);
+        executeBtn.setEnabled(false);
+        m_board.setSimulationMode(false);
+        m_board.resetBoard();
+        
+        m_executorTimer = new Timer();
+        m_executorTimer.scheduleAtFixedRate(new executeStepTask(), 0, 1000);
+    }//GEN-LAST:event_executeBtnActionPerformed
+
+    private void undoBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_undoBtnActionPerformed
+        m_playerCommandStack.undo();
+        redrawBoard();
+    }//GEN-LAST:event_undoBtnActionPerformed
+
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JMenuItem aboutMenuItem;
@@ -321,6 +380,7 @@ public class TankGame extends javax.swing.JFrame implements Observer {
         }
 
         m_board.resetBoard();
+        m_enemyCommandView = new CommandStackView(enemyCommandDisplay, m_enemyCommandStack);
     }
 
     private void saveGameToFiles() {
@@ -343,6 +403,8 @@ public class TankGame extends javax.swing.JFrame implements Observer {
         } catch (IOException ex) {
             m_playerCommandStack = new TankCommandStack(MAX_COMMANDS);
         }
+        
+        m_playerCommandView = new CommandStackView(playerCommandDisplay, m_playerCommandStack);
     }
 
 }
